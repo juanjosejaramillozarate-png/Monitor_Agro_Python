@@ -75,7 +75,7 @@ monitor_agro/
 │   ├── visualizacion/    # series, catálogo y resumen para gráficos
 │   └── snapshots/       # foto semanal archivada (histórico)
 ├── tests/               # pruebas unitarias sin depender de internet
-└── app.py               # Streamlit (fase tardía)
+└── app.py               # visualizaciones básicas en Streamlit
 ```
 
 ## 4. El contrato de las fuentes
@@ -171,6 +171,9 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
 - **Bloque 3.5 — Preparación visual.** `procesar/visualizacion.py` añade
   etiquetas, categorías, orden, colores e índice base 100. Es una capa de
   presentación neutral; no contiene criterio experto ni score.
+- **Visualizaciones básicas para feedback.** `app.py` presenta panorama
+  comercial, evolución por departamento y comparación climática. No equivale
+  aún al tablero final ni adelanta el score.
 - **Fase 3 — Score.** Metodología del índice, con datos reales en mano.
 - **Fase 4 — Reporte.** Resumen ejecutivo + tablas (la IA entra aquí).
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
@@ -189,6 +192,7 @@ python -m unittest discover -s tests -v  # pruebas sin internet
 python -m procesar.historico    # actualizar el histórico desde 2023
 python -m procesar.indicadores  # calcular tendencias y resumen reciente
 python -m procesar.visualizacion  # preparar series para gráficos
+streamlit run app.py           # abrir visualizaciones en localhost:8501
 ```
 
 ## 9. Disciplina de edición
