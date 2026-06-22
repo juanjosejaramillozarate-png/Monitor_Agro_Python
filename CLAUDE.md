@@ -1,4 +1,4 @@
-# Monitor Agro LatAm
+# Monitor Agro Colombia
 
 Instrucciones del proyecto. **Lee este archivo completo antes de escribir o
 editar cualquier código.** Estas reglas existen para que el proyecto sea
@@ -60,6 +60,7 @@ monitor_agro/
 │   └── contexto.py      # Banco Mundial (fase tardía)
 ├── procesar/
 │   ├── __init__.py
+│   ├── calidad.py       # validaciones y cobertura de snapshots
 │   ├── unir.py          # junta las fuentes en una tabla semanal
 │   └── score.py         # metodología del índice
 ├── reporte/
@@ -67,6 +68,7 @@ monitor_agro/
 │   └── generar.py       # resumen ejecutivo + tablas
 ├── datos/
 │   └── snapshots/       # foto semanal archivada (histórico)
+├── tests/               # pruebas unitarias sin depender de internet
 └── app.py               # Streamlit (fase tardía)
 ```
 
@@ -148,7 +150,9 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
 - **Fase 1 — Fuentes, una por una:** 1a FX → 1b Café → 1c Clima → 1d Noticias.
   Cada submódulo termina corriendo solo y mostrando su DataFrame.
 - **Fase 2 — Unir.** `procesar/unir.py` junta todo en una tabla semanal y
-  guarda el primer snapshot en `datos/snapshots/`.
+  guarda el primer snapshot en `datos/snapshots/`. `procesar/calidad.py`
+  valida fechas, duplicados, nulos, valores y cobertura antes de guardar. Un
+  snapshot existente no se sobrescribe salvo autorización explícita.
 - **Fase 3 — Score.** Metodología del índice, con datos reales en mano.
 - **Fase 4 — Reporte.** Resumen ejecutivo + tablas (la IA entra aquí).
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
@@ -163,6 +167,7 @@ Siempre con el entorno virtual activo (`(.venv)` visible en la terminal):
 .venv\Scripts\Activate.ps1      # Windows PowerShell
 python -m fuentes.fx            # probar un módulo aislado
 python main.py                  # correr el orquestador
+python -m unittest discover -s tests -v  # pruebas sin internet
 ```
 
 ## 9. Disciplina de edición
