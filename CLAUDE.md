@@ -15,6 +15,12 @@ modular, reproducible y fácil de editar pieza por pieza más adelante.
   sin acceso al repositorio. Explica producto, usuarias, criterio y decisiones
   pendientes; evita detalles internos de código.
 
+La única superposición permitida es un resumen mínimo de producto y estado en
+`BRIEFING_CHAT.md`, porque ese archivo debe entenderse por sí solo fuera del
+repositorio. Ante una contradicción: este archivo manda en asuntos técnicos,
+`CONTEXTO_IAS.md` manda sobre el punto operativo actual y `BRIEFING_CHAT.md`
+manda sobre decisiones de producto confirmadas por el usuario.
+
 Un asistente de código debe leer primero este archivo y después
 `CONTEXTO_IAS.md`. El briefing solo es necesario para conversaciones de
 producto o cuando el usuario lo entregue expresamente.
@@ -26,9 +32,9 @@ producto o cuando el usuario lo entregue expresamente.
 Un monitor semanal de las **condiciones que afectan la agroexportación de café
 de Colombia**. Cada semana recoge precio internacional del café, tipo de cambio
 USD/COP, precio interno de la FNC, clima en los **departamentos cafeteros** y
-señales de noticias, calcula un índice exploratorio de oportunidad/riesgo por
-departamento y produce un reporte ejecutivo. La salida final será un tablero en
-Streamlit alimentado por snapshots semanales archivados.
+señales de noticias. El objetivo futuro es producir un índice exploratorio y un
+reporte ejecutivo validados con conocimiento experto. La salida final será un
+tablero en Streamlit alimentado por snapshots semanales archivados.
 
 **Pivote a Colombia:** el proyecto nació comparando países de LatAm (Colombia,
 Brasil, Perú, Honduras, México). Se reorientó a comparar los departamentos
@@ -36,9 +42,9 @@ cafeteros de Colombia entre sí. Los países retirados quedan recuperables en el
 historial de git. La columna de geografía pasó de `pais` a `geografia` para
 reflejar que ahora mezcla niveles (GLOBAL / COLOMBIA / departamento).
 
-Es un proyecto de portafolio: combina análisis de datos, negocios
-internacionales, economía y geopolítica. La frecuencia semanal es **honesta**:
-solo usamos datos que de verdad cambian semana a semana.
+La frecuencia semanal es **honesta**: solo usamos datos que de verdad cambian
+semana a semana. La motivación de portafolio, las beneficiarias y los criterios
+de producto viven en `BRIEFING_CHAT.md`.
 
 ## 2. Principios de diseño (no negociables)
 
