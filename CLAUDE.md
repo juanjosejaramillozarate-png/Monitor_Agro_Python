@@ -61,12 +61,14 @@ monitor_agro/
 ├── procesar/
 │   ├── __init__.py
 │   ├── calidad.py       # validaciones y cobertura de snapshots
+│   ├── historico.py     # backfill diario y agregación semanal
 │   ├── unir.py          # junta las fuentes en una tabla semanal
 │   └── score.py         # metodología del índice
 ├── reporte/
 │   ├── __init__.py
 │   └── generar.py       # resumen ejecutivo + tablas
 ├── datos/
+│   ├── historico/       # series diarias y semanales desde 2023
 │   └── snapshots/       # foto semanal archivada (histórico)
 ├── tests/               # pruebas unitarias sin depender de internet
 └── app.py               # Streamlit (fase tardía)
@@ -100,6 +102,10 @@ IA de la `categoria` se añade en una fase posterior, no al inicio.
 Regla: si una fuente no puede entregar algo, devuelve un DataFrame **vacío
 pero con las columnas correctas**, nunca un error sin manejar. Y deja un
 comentario en el módulo documentando la limitación encontrada.
+
+Para backfill, `obtener(desde, hasta)` usa el mismo contrato y devuelve todas
+las observaciones diarias del rango inclusivo. Sin argumentos conserva el
+comportamiento operativo original.
 
 ## 5. Convenciones de código
 
@@ -153,6 +159,8 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
   guarda el primer snapshot en `datos/snapshots/`. `procesar/calidad.py`
   valida fechas, duplicados, nulos, valores y cobertura antes de guardar. Un
   snapshot existente no se sobrescribe salvo autorización explícita.
+  `procesar/historico.py` construye un histórico separado, diario y semanal,
+  desde 2023; solo incluye semanas cerradas y su actualización es idempotente.
 - **Fase 3 — Score.** Metodología del índice, con datos reales en mano.
 - **Fase 4 — Reporte.** Resumen ejecutivo + tablas (la IA entra aquí).
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
@@ -168,6 +176,7 @@ Siempre con el entorno virtual activo (`(.venv)` visible en la terminal):
 python -m fuentes.fx            # probar un módulo aislado
 python main.py                  # correr el orquestador
 python -m unittest discover -s tests -v  # pruebas sin internet
+python -m procesar.historico    # actualizar el histórico desde 2023
 ```
 
 ## 9. Disciplina de edición
