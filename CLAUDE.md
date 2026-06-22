@@ -4,6 +4,21 @@ Instrucciones del proyecto. **Lee este archivo completo antes de escribir o
 editar cualquier código.** Estas reglas existen para que el proyecto sea
 modular, reproducible y fácil de editar pieza por pieza más adelante.
 
+## 0. Alcance de los documentos de continuidad
+
+- `CLAUDE.md` (este archivo) es la fuente de verdad **técnica y estable**:
+  arquitectura, contratos, convenciones, fases y comandos de verificación.
+- `CONTEXTO_IAS.md` es la bitácora **operativa y cambiante**: estado real del
+  repositorio, últimas validaciones, decisiones recientes, bloqueos y próximo
+  paso. No debe copiar las reglas de este archivo.
+- `BRIEFING_CHAT.md` es un briefing **estratégico y autosuficiente** para chats
+  sin acceso al repositorio. Explica producto, usuarias, criterio y decisiones
+  pendientes; evita detalles internos de código.
+
+Un asistente de código debe leer primero este archivo y después
+`CONTEXTO_IAS.md`. El briefing solo es necesario para conversaciones de
+producto o cuando el usuario lo entregue expresamente.
+
 ---
 
 ## 1. Qué es este proyecto
@@ -203,6 +218,10 @@ streamlit run app.py           # abrir visualizaciones en localhost:8501
 - No mezclar dos fases en un mismo cambio.
 - Si una fuente revela una limitación, documentarla en el módulo y mencionarla,
   no esconderla.
+- Al cerrar un cambio validado, actualizar `CONTEXTO_IAS.md` solo si cambia el
+  estado, una decisión, una limitación o el próximo paso. Actualizar
+  `BRIEFING_CHAT.md` únicamente cuando cambie el panorama estratégico que un
+  chat sin acceso al repositorio necesita conocer.
 
 ## 10. Secretos y API keys
 
