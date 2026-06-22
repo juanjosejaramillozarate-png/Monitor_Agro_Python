@@ -62,6 +62,7 @@ monitor_agro/
 │   ├── __init__.py
 │   ├── calidad.py       # validaciones y cobertura de snapshots
 │   ├── historico.py     # backfill diario y agregación semanal
+│   ├── indicadores.py   # tendencias y comparación departamental
 │   ├── unir.py          # junta las fuentes en una tabla semanal
 │   └── score.py         # metodología del índice
 ├── reporte/
@@ -69,6 +70,7 @@ monitor_agro/
 │   └── generar.py       # resumen ejecutivo + tablas
 ├── datos/
 │   ├── historico/       # series diarias y semanales desde 2023
+│   ├── indicadores/     # derivados estadísticos y último resumen
 │   └── snapshots/       # foto semanal archivada (histórico)
 ├── tests/               # pruebas unitarias sin depender de internet
 └── app.py               # Streamlit (fase tardía)
@@ -161,6 +163,9 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
   snapshot existente no se sobrescribe salvo autorización explícita.
   `procesar/historico.py` construye un histórico separado, diario y semanal,
   desde 2023; solo incluye semanas cerradas y su actualización es idempotente.
+- **Bloque 3 — Indicadores descriptivos.** `procesar/indicadores.py` calcula
+  cambios, promedios móviles, anomalías estadísticas y comparaciones entre
+  departamentos. No asigna todavía oportunidad, riesgo, bueno ni malo.
 - **Fase 3 — Score.** Metodología del índice, con datos reales en mano.
 - **Fase 4 — Reporte.** Resumen ejecutivo + tablas (la IA entra aquí).
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
@@ -177,6 +182,7 @@ python -m fuentes.fx            # probar un módulo aislado
 python main.py                  # correr el orquestador
 python -m unittest discover -s tests -v  # pruebas sin internet
 python -m procesar.historico    # actualizar el histórico desde 2023
+python -m procesar.indicadores  # calcular tendencias y resumen reciente
 ```
 
 ## 9. Disciplina de edición
