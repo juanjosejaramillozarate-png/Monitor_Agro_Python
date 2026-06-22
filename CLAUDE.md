@@ -8,12 +8,18 @@ modular, reproducible y fácil de editar pieza por pieza más adelante.
 
 ## 1. Qué es este proyecto
 
-Un monitor semanal de las **condiciones que afectan la agroexportación
-latinoamericana** (con foco inicial en café). Cada semana recoge precio del
-café, tipo de cambio, clima en zonas cafeteras y señales de noticias, calcula
-un índice exploratorio de oportunidad/riesgo por país y produce un reporte
-ejecutivo. La salida final será un tablero en Streamlit alimentado por
-snapshots semanales archivados.
+Un monitor semanal de las **condiciones que afectan la agroexportación de café
+de Colombia**. Cada semana recoge precio internacional del café, tipo de cambio
+USD/COP, precio interno de la FNC, clima en los **departamentos cafeteros** y
+señales de noticias, calcula un índice exploratorio de oportunidad/riesgo por
+departamento y produce un reporte ejecutivo. La salida final será un tablero en
+Streamlit alimentado por snapshots semanales archivados.
+
+**Pivote a Colombia:** el proyecto nació comparando países de LatAm (Colombia,
+Brasil, Perú, Honduras, México). Se reorientó a comparar los departamentos
+cafeteros de Colombia entre sí. Los países retirados quedan recuperables en el
+historial de git. La columna de geografía pasó de `pais` a `geografia` para
+reflejar que ahora mezcla niveles (GLOBAL / COLOMBIA / departamento).
 
 Es un proyecto de portafolio: combina análisis de datos, negocios
 internacionales, economía y geopolítica. La frecuencia semanal es **honesta**:
@@ -68,20 +74,24 @@ monitor_agro/
 
 Cada módulo de `fuentes/` expone `def obtener() -> pandas.DataFrame`.
 
-**Contrato numérico** (para `fx.py`, `cafe.py`, `clima.py`, `contexto.py`).
-DataFrame en formato largo/tidy con estas columnas exactas:
+**Contrato numérico** (para `fx.py`, `cafe.py`, `clima.py`, `precio_interno.py`,
+`contexto.py`). DataFrame en formato largo/tidy con estas columnas exactas:
 
-| columna    | tipo            | descripción                                            |
-|------------|-----------------|--------------------------------------------------------|
-| `fecha`    | date            | fecha del dato                                         |
-| `pais`     | str             | código ISO3 del país, o `"GLOBAL"` si no aplica (café) |
-| `variable` | str             | nombre del indicador (ej. `fx_usd_local`)              |
-| `valor`    | float           | valor numérico                                         |
-| `unidad`   | str             | unidad (ej. `USc/lb`, `COP/USD`, `mm`, `°C`)           |
-| `fuente`   | str             | nombre de la fuente (ej. `yfinance`, `open-meteo`)     |
+| columna     | tipo            | descripción                                            |
+|-------------|-----------------|--------------------------------------------------------|
+| `fecha`     | date            | fecha del dato                                         |
+| `geografia` | str             | nivel geográfico del dato (ver abajo)                  |
+| `variable`  | str             | nombre del indicador (ej. `fx_usd_local`)              |
+| `valor`     | float           | valor numérico                                         |
+| `unidad`    | str             | unidad (ej. `USc/lb`, `COP/USD`, `mm`, `°C`)           |
+| `fuente`    | str             | nombre de la fuente (ej. `yfinance`, `open-meteo`)     |
+
+Tras el **pivote a Colombia**, la columna `geografia` tiene tres niveles:
+`"GLOBAL"` (café), `"COLOMBIA"` (FX y precio interno) y el nombre del
+**departamento cafetero** (clima, ej. `"Huila"`).
 
 **Contrato noticias** (para `noticias.py`, por su naturaleza cualitativa).
-DataFrame con: `fecha`, `pais`, `titulo`, `url`, `fuente`, `idioma`,
+DataFrame con: `fecha`, `geografia`, `titulo`, `url`, `fuente`, `idioma`,
 `tono` (float, opcional), `categoria` (str, opcional). La clasificación por
 IA de la `categoria` se añade en una fase posterior, no al inicio.
 
@@ -108,14 +118,19 @@ comentario en el módulo documentando la limitación encontrada.
   ICE Coffee C). Es la fuente más frágil: es no oficial (raspa Yahoo) y se
   puede romper. Alpha Vantage sirve solo como contexto **mensual** (requiere
   API key gratuita). El precio del café es **global**, así que va con
-  `pais="GLOBAL"`.
-- **FX (`fx.py`)** — Frankfurter es gratis y sin key, pero las tasas del BCE
-  **no cubren COP, PEN ni HNL** (solo BRL y MXN). Para esas monedas se usa una
-  fuente alterna (yfinance `USDCOP=X`, etc., o ExchangeRate-API open access).
-  Esta decisión se valida en vivo en la Fase 1a.
+  `geografia="GLOBAL"`.
+- **FX (`fx.py`)** — tras el pivote a Colombia, solo **USD/COP**
+  (`config.TICKER_FX = "USDCOP=X"`) vía `yfinance`. Frankfurter/BCE no cubre
+  COP, por eso se usa yfinance. `geografia="COLOMBIA"`.
+- **Precio interno (`precio_interno.py`)** — precio interno de referencia de la
+  FNC, raspado del HTML de la página de estadísticas cafeteras. Misma fragilidad
+  que el café (scraping). `geografia="COLOMBIA"`.
 - **Clima (`clima.py`)** — Open-Meteo, gratis y sin key. Solo uso no comercial.
+  Se consulta una coordenada por **departamento cafetero** (`config.REGIONES_CAFE`);
+  `geografia` = nombre del departamento.
 - **Noticias (`noticias.py`)** — GDELT DOC 2.0 vía el cliente `gdeltdoc`,
-  gratis y sin key, multilingüe (incluye español). Mezcla fuentes confiables y
+  gratis y sin key, multilingüe (incluye español). Tras el pivote se consulta
+  solo a nivel nacional (`config.PAIS_FIPS`). Mezcla fuentes confiables y
   obscuras: filtrar con criterio, nunca tomar una sola noticia como hecho.
 - **Contexto (`contexto.py`)** — API del Banco Mundial, gratis y sin key. Solo
   como telón de fondo anual, nunca como dato que "cambia" cada semana.
