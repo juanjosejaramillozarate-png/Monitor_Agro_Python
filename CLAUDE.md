@@ -54,10 +54,10 @@ de producto viven en `BRIEFING_CHAT.md`.
    reescribir (p. ej. cambiar de API) sin tocar nada más, siempre que el
    esquema de salida se mantenga.
 
-2. **Todo lo editable vive en `config.py`.** Países, coordenadas, monedas,
-   tickers, pesos del score, parámetros de las fuentes. La lógica **nunca**
-   tiene valores "quemados". Para agregar un país o cambiar un peso, se edita
-   solo `config.py`.
+2. **Todo lo editable vive en `config.py`.** Departamentos, coordenadas,
+   monedas, tickers, parámetros de las fuentes y futuros pesos del score. La
+   lógica **nunca** tiene valores "quemados". Para agregar un departamento o
+   cambiar un parámetro, se edita solo `config.py`.
 
 3. **Cada módulo corre solo.** Todo módulo de `fuentes/` debe poder ejecutarse
    de forma aislada con `python -m fuentes.<nombre>` e imprimir/validar su
@@ -85,6 +85,7 @@ monitor_agro/
 │   ├── historico.py     # backfill diario y agregación semanal
 │   ├── indicadores.py   # tendencias y comparación departamental
 │   ├── visualizacion.py  # dataset y metadatos listos para gráficos
+│   ├── proyeccion.py     # escenarios Coffee C, USD/COP, precio FNC y margen
 │   ├── unir.py          # junta las fuentes en una tabla semanal
 │   └── score.py         # metodología del índice
 ├── reporte/
@@ -201,6 +202,10 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
 - **Visualizaciones básicas para feedback.** `app.py` presenta panorama
   comercial, evolución por departamento y comparación climática. No equivale
   aún al tablero final ni adelanta el score.
+- **Simulador de escenarios.** `procesar/proyeccion.py` desplaza el precio FNC
+  observado en proporción a cambios supuestos de Coffee C y USD/COP. La
+  interfaz permite editar el costo medio por carga y estimar margen bruto. No
+  es un pronóstico ni modela todavía prima, calidad, logística o causalidad.
 - **Fase 3 — Score.** Metodología del índice, con datos reales en mano.
 - **Fase 4 — Reporte.** Brief ejecutivo Markdown por periodo, con cifras,
   fuentes, cadencias y limitaciones.
