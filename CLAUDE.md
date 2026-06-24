@@ -90,7 +90,8 @@ monitor_agro/
 │   └── score.py         # metodología del índice
 ├── reporte/
 │   ├── __init__.py
-│   └── generar.py       # brief ejecutivo Markdown por periodo
+│   ├── generar.py       # brief Markdown e informe Markdown del simulador
+│   └── pdf.py           # brief del periodo en PDF (matplotlib + reportlab)
 ├── datos/
 │   ├── historico/       # series diarias y semanales desde 2023
 │   ├── indicadores/     # derivados estadísticos y último resumen
@@ -207,8 +208,9 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
   interfaz permite editar el costo medio por carga y estimar margen bruto. No
   es un pronóstico ni modela todavía prima, calidad, logística o causalidad.
 - **Fase 3 — Score.** Metodología del índice, con datos reales en mano.
-- **Fase 4 — Reporte.** Brief ejecutivo Markdown por periodo, con cifras,
-  fuentes, cadencias y limitaciones.
+- **Fase 4 — Reporte.** Brief ejecutivo por periodo con cifras, fuentes,
+  cadencias y limitaciones. La salida principal es un PDF con las gráficas
+  (`reporte/pdf.py`); `reporte/generar.py` conserva la versión Markdown.
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
 - **Fase 6 — Automatización.** GitHub Actions semanal.
 - **Fase 7 — Banco Mundial + pulido para LinkedIn.**
