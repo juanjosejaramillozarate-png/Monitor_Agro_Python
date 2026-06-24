@@ -200,8 +200,8 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
   etiquetas, categorías, orden, colores e índice base 100. Es una capa de
   presentación neutral; no contiene criterio experto ni score.
 - **Visualizaciones básicas para feedback.** `app.py` presenta panorama
-  comercial, evolución por departamento y comparación climática. No equivale
-  aún al tablero final ni adelanta el score.
+  comercial y detalle climático por departamento. No equivale aún al tablero
+  final ni adelanta el score.
 - **Simulador de escenarios.** `procesar/proyeccion.py` desplaza el precio FNC
   observado en proporción a cambios supuestos de Coffee C y USD/COP. La
   interfaz permite editar el costo medio por carga y estimar margen bruto. No
