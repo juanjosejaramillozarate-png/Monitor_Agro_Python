@@ -29,12 +29,12 @@ producto o cuando el usuario lo entregue expresamente.
 
 ## 1. Qué es este proyecto
 
-Un monitor semanal de las **condiciones que afectan la agroexportación de café
-de Colombia**. Cada semana recoge precio internacional del café, tipo de cambio
-USD/COP, precio interno de la FNC, clima en los **departamentos cafeteros** y
-señales de noticias. El objetivo futuro es producir un índice exploratorio y un
-reporte ejecutivo validados con conocimiento experto. La salida final será un
-tablero en Streamlit alimentado por snapshots semanales archivados.
+Un kit de consulta y reporte sobre las **condiciones que afectan la
+agroexportación de café de Colombia**. Integra precio internacional del café,
+tipo de cambio USD/COP, precio interno de la FNC, producción nacional mensual,
+clima en los **departamentos cafeteros** y señales de noticias. La interfaz
+permite consultar y exportar evidencia y generar un brief por periodo. Un
+posible índice futuro sigue condicionado a conocimiento experto.
 
 **Pivote a Colombia:** el proyecto nació comparando países de LatAm (Colombia,
 Brasil, Perú, Honduras, México). Se reorientó a comparar los departamentos
@@ -89,7 +89,7 @@ monitor_agro/
 │   └── score.py         # metodología del índice
 ├── reporte/
 │   ├── __init__.py
-│   └── generar.py       # resumen ejecutivo + tablas
+│   └── generar.py       # brief ejecutivo Markdown por periodo
 ├── datos/
 │   ├── historico/       # series diarias y semanales desde 2023
 │   ├── indicadores/     # derivados estadísticos y último resumen
@@ -104,7 +104,8 @@ monitor_agro/
 Cada módulo de `fuentes/` expone `def obtener() -> pandas.DataFrame`.
 
 **Contrato numérico** (para `fx.py`, `cafe.py`, `clima.py`, `precio_interno.py`,
-`contexto.py`). DataFrame en formato largo/tidy con estas columnas exactas:
+`produccion.py`, `contexto.py`). DataFrame en formato largo/tidy con estas
+columnas exactas:
 
 | columna     | tipo            | descripción                                            |
 |-------------|-----------------|--------------------------------------------------------|
@@ -158,6 +159,10 @@ comportamiento operativo original.
 - **Precio interno (`precio_interno.py`)** — precio interno de referencia de la
   FNC, raspado del HTML de la página de estadísticas cafeteras. Misma fragilidad
   que el café (scraping). `geografia="COLOMBIA"`.
+- **Producción (`produccion.py`)** — producción nacional registrada mensual,
+  tomada del Excel "Precios, área y producción de café" de la FNC. Se expresa
+  en miles de sacos de 60 kg y conserva un punto por mes, sin relleno semanal.
+  `geografia="COLOMBIA"`.
 - **Clima (`clima.py`)** — Open-Meteo, gratis y sin key. Solo uso no comercial.
   Se consulta una coordenada por **departamento cafetero** (`config.REGIONES_CAFE`);
   `geografia` = nombre del departamento.
@@ -184,8 +189,9 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
   guarda el primer snapshot en `datos/snapshots/`. `procesar/calidad.py`
   valida fechas, duplicados, nulos, valores y cobertura antes de guardar. Un
   snapshot existente no se sobrescribe salvo autorización explícita.
-  `procesar/historico.py` construye un histórico separado, diario y semanal,
-  desde 2023; solo incluye semanas cerradas y su actualización es idempotente.
+  `procesar/historico.py` construye un histórico separado desde 2023; conserva
+  las observaciones mensuales de producción sin forward-fill, solo incluye
+  semanas cerradas para las demás series y su actualización es idempotente.
 - **Bloque 3 — Indicadores descriptivos.** `procesar/indicadores.py` calcula
   cambios, promedios móviles, anomalías estadísticas y comparaciones entre
   departamentos. No asigna todavía oportunidad, riesgo, bueno ni malo.
@@ -196,7 +202,8 @@ corra y se haya verificado.** Si algo no da, parar ahí y decidir.
   comercial, evolución por departamento y comparación climática. No equivale
   aún al tablero final ni adelanta el score.
 - **Fase 3 — Score.** Metodología del índice, con datos reales en mano.
-- **Fase 4 — Reporte.** Resumen ejecutivo + tablas (la IA entra aquí).
+- **Fase 4 — Reporte.** Brief ejecutivo Markdown por periodo, con cifras,
+  fuentes, cadencias y limitaciones.
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
 - **Fase 6 — Automatización.** GitHub Actions semanal.
 - **Fase 7 — Banco Mundial + pulido para LinkedIn.**
