@@ -1,252 +1,197 @@
 # Monitor Agro Colombia
 
 Instrucciones del proyecto. **Lee este archivo completo antes de escribir o
-editar cualquier código.** Estas reglas existen para que el proyecto sea
-modular, reproducible y fácil de editar pieza por pieza más adelante.
+editar código.** Las reglas mantienen el proyecto modular, reproducible y
+editable pieza por pieza.
 
-## 0. Alcance de los documentos de continuidad
+## 0. Documentos de continuidad
 
-- `CLAUDE.md` (este archivo) es la fuente de verdad **técnica y estable**:
-  arquitectura, contratos, convenciones, fases y comandos de verificación.
-- `CONTEXTO_IAS.md` es la bitácora **operativa y cambiante**: estado real del
-  repositorio, últimas validaciones, decisiones recientes, bloqueos y próximo
-  paso. No debe copiar las reglas de este archivo.
-- `BRIEFING_CHAT.md` es un briefing **estratégico y autosuficiente** para chats
-  sin acceso al repositorio. Explica producto, usuarias, criterio y decisiones
-  pendientes; evita detalles internos de código.
+- `CLAUDE.md` (este): verdad **técnica y estable** — arquitectura, contratos,
+  convenciones, fases, comandos.
+- `CONTEXTO_IAS.md`: bitácora **operativa** — estado real, validaciones,
+  decisiones recientes, bloqueos, próximo paso. No copia reglas de aquí.
+- `BRIEFING_CHAT.md`: briefing **estratégico autosuficiente** para chats sin
+  repo — producto, usuarias, criterio, decisiones pendientes; sin código.
 
-La única superposición permitida es un resumen mínimo de producto y estado en
-`BRIEFING_CHAT.md`, porque ese archivo debe entenderse por sí solo fuera del
-repositorio. Ante una contradicción: este archivo manda en asuntos técnicos,
-`CONTEXTO_IAS.md` manda sobre el punto operativo actual y `BRIEFING_CHAT.md`
-manda sobre decisiones de producto confirmadas por el usuario.
+Leer primero este archivo y luego `CONTEXTO_IAS.md`; el briefing solo para temas
+de producto. Ante contradicción: este manda en lo técnico, `CONTEXTO_IAS.md` en
+el punto operativo, `BRIEFING_CHAT.md` en decisiones de producto confirmadas.
 
-Un asistente de código debe leer primero este archivo y después
-`CONTEXTO_IAS.md`. El briefing solo es necesario para conversaciones de
-producto o cuando el usuario lo entregue expresamente.
+## 1. Qué es
 
----
+Kit de consulta y reporte sobre las **condiciones que afectan la agroexportación
+de café de Colombia**: precio internacional del café, USD/COP, precio interno
+FNC, producción nacional mensual, clima en departamentos cafeteros y señales de
+noticias. La interfaz consulta y exporta evidencia y genera un brief por periodo.
+Un índice futuro queda condicionado a conocimiento experto.
 
-## 1. Qué es este proyecto
-
-Un kit de consulta y reporte sobre las **condiciones que afectan la
-agroexportación de café de Colombia**. Integra precio internacional del café,
-tipo de cambio USD/COP, precio interno de la FNC, producción nacional mensual,
-clima en los **departamentos cafeteros** y señales de noticias. La interfaz
-permite consultar y exportar evidencia y generar un brief por periodo. Un
-posible índice futuro sigue condicionado a conocimiento experto.
-
-**Pivote a Colombia:** el proyecto nació comparando países de LatAm (Colombia,
-Brasil, Perú, Honduras, México). Se reorientó a comparar los departamentos
-cafeteros de Colombia entre sí. Los países retirados quedan recuperables en el
-historial de git. La columna de geografía pasó de `pais` a `geografia` para
-reflejar que ahora mezcla niveles (GLOBAL / COLOMBIA / departamento).
-
-La frecuencia semanal es **honesta**: solo usamos datos que de verdad cambian
-semana a semana. La motivación de portafolio, las beneficiarias y los criterios
-de producto viven en `BRIEFING_CHAT.md`.
+**Pivote a Colombia:** nació comparando países LatAm (Colombia, Brasil, Perú,
+Honduras, México); se reorientó a comparar departamentos cafeteros entre sí (los
+retirados quedan en git). La columna `pais` pasó a `geografia` porque ahora
+mezcla niveles (GLOBAL / COLOMBIA / departamento). La frecuencia semanal es
+**honesta**: solo datos que cambian semana a semana. Motivación y producto en
+`BRIEFING_CHAT.md`.
 
 ## 2. Principios de diseño (no negociables)
 
-1. **Un contrato fijo por fuente.** Cada módulo de datos en `fuentes/` expone
-   una única función pública `obtener()` que devuelve un `DataFrame` de pandas
-   con un esquema documentado y estable. Las tripas de un módulo se pueden
-   reescribir (p. ej. cambiar de API) sin tocar nada más, siempre que el
-   esquema de salida se mantenga.
-
-2. **Todo lo editable vive en `config.py`.** Departamentos, coordenadas,
-   monedas, tickers, parámetros de las fuentes y futuros pesos del score. La
-   lógica **nunca** tiene valores "quemados". Para agregar un departamento o
-   cambiar un parámetro, se edita solo `config.py`.
-
-3. **Cada módulo corre solo.** Todo módulo de `fuentes/` debe poder ejecutarse
-   de forma aislada con `python -m fuentes.<nombre>` e imprimir/validar su
-   propia salida. Así detectamos limitaciones en su propio paso, no al final.
+1. **Un contrato fijo por fuente.** Cada módulo de `fuentes/` expone una sola
+   función pública `obtener()` → `DataFrame` con esquema estable. Las tripas se
+   pueden reescribir (cambiar de API) sin tocar nada más si el esquema se mantiene.
+2. **Todo lo editable vive en `config.py`** (departamentos, coordenadas, monedas,
+   tickers, parámetros, pesos futuros del score). La lógica nunca tiene valores
+   "quemados"; para agregar un departamento o cambiar un parámetro se edita solo
+   `config.py`.
+3. **Cada módulo corre solo** con `python -m fuentes.<nombre>`, imprimiendo y
+   validando su salida, para detectar límites en su propio paso.
 
 ## 3. Estructura de carpetas
 
 ```
 monitor_agro/
-├── CLAUDE.md            # este archivo
 ├── config.py            # TODO lo editable
-├── requirements.txt
-├── .gitignore
 ├── main.py              # orquestador: corre las fases en orden
 ├── fuentes/             # un módulo por fuente, todos con obtener()
-│   ├── __init__.py
-│   ├── fx.py            # tipo de cambio
+│   ├── fx.py            # USD/COP
 │   ├── cafe.py          # precio del café
 │   ├── clima.py         # clima en zonas cafeteras
 │   ├── noticias.py      # señales cualitativas (GDELT)
 │   └── contexto.py      # Banco Mundial (fase tardía)
 ├── procesar/
-│   ├── __init__.py
 │   ├── calidad.py       # validaciones y cobertura de snapshots
 │   ├── historico.py     # backfill diario y agregación semanal
 │   ├── indicadores.py   # tendencias y comparación departamental
-│   ├── visualizacion.py  # dataset y metadatos listos para gráficos
-│   ├── proyeccion.py     # escenarios Coffee C, USD/COP, precio FNC y margen
+│   ├── visualizacion.py # dataset y metadatos para gráficos
+│   ├── proyeccion.py    # escenarios Coffee C, USD/COP, FNC, factor y margen
 │   ├── unir.py          # junta las fuentes en una tabla semanal
-│   └── score.py         # metodología del índice
+│   └── score.py         # metodología del índice (pendiente)
 ├── reporte/
-│   ├── __init__.py
 │   ├── generar.py       # brief Markdown e informe Markdown del simulador
 │   └── pdf.py           # brief del periodo en PDF (matplotlib + reportlab)
-├── datos/
-│   ├── historico/       # series diarias y semanales desde 2023
-│   ├── indicadores/     # derivados estadísticos y último resumen
-│   ├── visualizacion/    # series, catálogo y resumen para gráficos
-│   └── snapshots/       # foto semanal archivada (histórico)
-├── tests/               # pruebas unitarias sin depender de internet
-└── app.py               # visualizaciones básicas en Streamlit
+├── datos/               # historico/ indicadores/ visualizacion/ snapshots/
+├── tests/               # pruebas unitarias sin internet
+└── app.py               # tablero Streamlit
 ```
 
 ## 4. El contrato de las fuentes
 
 Cada módulo de `fuentes/` expone `def obtener() -> pandas.DataFrame`.
 
-**Contrato numérico** (para `fx.py`, `cafe.py`, `clima.py`, `precio_interno.py`,
-`produccion.py`, `contexto.py`). DataFrame en formato largo/tidy con estas
-columnas exactas:
+**Contrato numérico** (`fx.py`, `cafe.py`, `clima.py`, `precio_interno.py`,
+`produccion.py`, `contexto.py`): DataFrame largo/tidy con estas columnas exactas:
 
-| columna     | tipo            | descripción                                            |
-|-------------|-----------------|--------------------------------------------------------|
-| `fecha`     | date            | fecha del dato                                         |
-| `geografia` | str             | nivel geográfico del dato (ver abajo)                  |
-| `variable`  | str             | nombre del indicador (ej. `fx_usd_local`)              |
-| `valor`     | float           | valor numérico                                         |
-| `unidad`    | str             | unidad (ej. `USc/lb`, `COP/USD`, `mm`, `°C`)           |
-| `fuente`    | str             | nombre de la fuente (ej. `yfinance`, `open-meteo`)     |
+| columna     | tipo  | descripción                                       |
+|-------------|-------|---------------------------------------------------|
+| `fecha`     | date  | fecha del dato                                    |
+| `geografia` | str   | nivel geográfico (ver abajo)                      |
+| `variable`  | str   | nombre del indicador (ej. `fx_usd_local`)         |
+| `valor`     | float | valor numérico                                    |
+| `unidad`    | str   | unidad (ej. `USc/lb`, `COP/USD`, `mm`, `°C`)      |
+| `fuente`    | str   | nombre de la fuente (ej. `yfinance`, `open-meteo`)|
 
-Tras el **pivote a Colombia**, la columna `geografia` tiene tres niveles:
-`"GLOBAL"` (café), `"COLOMBIA"` (FX y precio interno) y el nombre del
-**departamento cafetero** (clima, ej. `"Huila"`).
+`geografia` tiene tres niveles: `"GLOBAL"` (café), `"COLOMBIA"` (FX y precio
+interno) y el nombre del **departamento** (clima, ej. `"Huila"`).
 
-**Contrato noticias** (para `noticias.py`, por su naturaleza cualitativa).
-DataFrame con: `fecha`, `geografia`, `titulo`, `url`, `fuente`, `idioma`,
-`tono` (float, opcional), `categoria` (str, opcional). La clasificación por
-IA de la `categoria` se añade en una fase posterior, no al inicio.
+**Contrato noticias** (`noticias.py`, cualitativo): `fecha`, `geografia`,
+`titulo`, `url`, `fuente`, `idioma`, `tono` (float, opcional), `categoria` (str,
+opcional). La clasificación IA de `categoria` es de una fase posterior.
 
-Regla: si una fuente no puede entregar algo, devuelve un DataFrame **vacío
-pero con las columnas correctas**, nunca un error sin manejar. Y deja un
-comentario en el módulo documentando la limitación encontrada.
-
-Para backfill, `obtener(desde, hasta)` usa el mismo contrato y devuelve todas
-las observaciones diarias del rango inclusivo. Sin argumentos conserva el
-comportamiento operativo original.
+Regla: si una fuente no entrega algo, devolver un DataFrame **vacío con las
+columnas correctas**, nunca un error sin manejar, y documentar la limitación en
+el módulo. Para backfill, `obtener(desde, hasta)` usa el mismo contrato y
+devuelve las observaciones diarias del rango inclusivo; sin argumentos conserva
+el comportamiento operativo.
 
 ## 5. Convenciones de código
 
-- **Idioma:** identificadores y comentarios en **español**, consistente con
-  `config.py`. (Se puede renombrar a inglés más adelante si se quiere; ahora
-  prima la consistencia.)
-- Funciones pequeñas y con una sola responsabilidad.
-- Type hints siempre que sea razonable.
-- Cada módulo de `fuentes/` termina con un bloque
-  `if __name__ == "__main__":` que llama a `obtener()` e imprime un resumen
-  (`.head()`, `.shape`, tipos) para poder probarlo aislado.
+- **Español** en identificadores y comentarios (consistente con `config.py`).
+- Funciones pequeñas, una responsabilidad, con type hints razonables.
+- Cada módulo de `fuentes/` cierra con `if __name__ == "__main__":` que llama a
+  `obtener()` e imprime un resumen (`.head()`, `.shape`, tipos).
 - Nada de imports innecesarios ni dependencias nuevas sin agregarlas a
   `requirements.txt` y avisar.
 
-## 6. Fuentes de datos y limitaciones conocidas
+## 6. Fuentes y limitaciones conocidas
 
-- **Café (`cafe.py`)** — precio diario vía `yfinance`, ticker `KC=F` (futuro
-  ICE Coffee C). Es la fuente más frágil: es no oficial (raspa Yahoo) y se
-  puede romper. Alpha Vantage sirve solo como contexto **mensual** (requiere
-  API key gratuita). El precio del café es **global**, así que va con
-  `geografia="GLOBAL"`.
-- **FX (`fx.py`)** — tras el pivote a Colombia, solo **USD/COP**
-  (`config.TICKER_FX = "USDCOP=X"`) vía `yfinance`. Frankfurter/BCE no cubre
-  COP, por eso se usa yfinance. `geografia="COLOMBIA"`.
-- **Precio interno (`precio_interno.py`)** — precio interno de referencia de la
-  FNC, raspado del HTML de la página de estadísticas cafeteras. Misma fragilidad
-  que el café (scraping). `geografia="COLOMBIA"`.
-- **Producción (`produccion.py`)** — producción nacional registrada mensual,
-  tomada del Excel "Precios, área y producción de café" de la FNC. Se expresa
-  en miles de sacos de 60 kg y conserva un punto por mes, sin relleno semanal.
-  `geografia="COLOMBIA"`.
-- **Clima (`clima.py`)** — Open-Meteo, gratis y sin key. Solo uso no comercial.
-  Se consulta una coordenada por **departamento cafetero** (`config.REGIONES_CAFE`);
-  `geografia` = nombre del departamento.
-- **Noticias (`noticias.py`)** — GDELT DOC 2.0 vía el cliente `gdeltdoc`,
-  gratis y sin key, multilingüe (incluye español). Tras el pivote se consulta
-  solo a nivel nacional (`config.PAIS_FIPS`). Mezcla fuentes confiables y
-  obscuras: filtrar con criterio, nunca tomar una sola noticia como hecho.
-- **Contexto (`contexto.py`)** — API del Banco Mundial, gratis y sin key. Solo
-  como telón de fondo anual, nunca como dato que "cambia" cada semana.
+- **Café (`cafe.py`)** — diario vía `yfinance`, ticker `KC=F` (ICE Coffee C). La
+  más frágil (raspa Yahoo). Alpha Vantage solo como contexto mensual (key
+  gratuita). Global → `geografia="GLOBAL"`.
+- **FX (`fx.py`)** — solo USD/COP (`config.TICKER_FX = "USDCOP=X"`) vía
+  `yfinance` (Frankfurter/BCE no cubre COP). `geografia="COLOMBIA"`.
+- **Precio interno (`precio_interno.py`)** — precio de referencia FNC, scraping
+  del HTML de estadísticas cafeteras (frágil). `geografia="COLOMBIA"`.
+- **Producción (`produccion.py`)** — nacional registrada mensual, del Excel FNC,
+  en miles de sacos de 60 kg, un punto por mes sin relleno. `geografia="COLOMBIA"`.
+- **Clima (`clima.py`)** — Open-Meteo, gratis/sin key, uso no comercial. Una
+  coordenada por departamento (`config.REGIONES_CAFE`); `geografia` = departamento.
+- **Noticias (`noticias.py`)** — GDELT DOC 2.0 (`gdeltdoc`), gratis/sin key,
+  multilingüe, nivel nacional (`config.PAIS_FIPS`). Mezcla fuentes confiables y
+  obscuras: filtrar con criterio, nunca una sola noticia como hecho.
+- **Contexto (`contexto.py`)** — API Banco Mundial, gratis/sin key. Solo telón de
+  fondo anual, no dato semanal.
 
 ## 7. Fases del proyecto
 
-Avanzar **en orden**. **No pasar a la siguiente fase hasta que la anterior
-corra y se haya verificado.** Si algo no da, parar ahí y decidir.
+Avanzar **en orden**; no pasar de fase hasta que la anterior corra y se verifique.
 
-- **Fase 0 — Esqueleto.** Estructura de carpetas, `config.py`,
-  `requirements.txt`, `.gitignore`, `main.py` que corra sin hacer nada todavía,
-  y los stubs vacíos de cada módulo (con `obtener()` devolviendo un DataFrame
-  vacío con las columnas correctas). *Verificable:* `python main.py` corre sin
-  error.
-- **Fase 1 — Fuentes, una por una:** 1a FX → 1b Café → 1c Clima → 1d Noticias.
-  Cada submódulo termina corriendo solo y mostrando su DataFrame.
-- **Fase 2 — Unir.** `procesar/unir.py` junta todo en una tabla semanal y
-  guarda el primer snapshot en `datos/snapshots/`. `procesar/calidad.py`
-  valida fechas, duplicados, nulos, valores y cobertura antes de guardar. Un
-  snapshot existente no se sobrescribe salvo autorización explícita.
-  `procesar/historico.py` construye un histórico separado desde 2023; conserva
-  las observaciones mensuales de producción sin forward-fill, solo incluye
-  semanas cerradas para las demás series y su actualización es idempotente.
-- **Bloque 3 — Indicadores descriptivos.** `procesar/indicadores.py` calcula
-  cambios, promedios móviles, anomalías estadísticas y comparaciones entre
-  departamentos. No asigna todavía oportunidad, riesgo, bueno ni malo.
-- **Bloque 3.5 — Preparación visual.** `procesar/visualizacion.py` añade
-  etiquetas, categorías, orden, colores e índice base 100. Es una capa de
-  presentación neutral; no contiene criterio experto ni score.
-- **Visualizaciones básicas para feedback.** `app.py` presenta panorama
-  comercial y detalle climático por departamento. No equivale aún al tablero
-  final ni adelanta el score.
-- **Simulador de escenarios.** `procesar/proyeccion.py` desplaza el precio FNC
-  observado en proporción a cambios supuestos de Coffee C y USD/COP. La
-  interfaz permite editar el costo medio por carga y estimar margen bruto. No
-  es un pronóstico ni modela todavía prima, calidad, logística o causalidad.
-- **Fase 3 — Score.** Metodología del índice, con datos reales en mano.
-- **Fase 4 — Reporte.** Brief ejecutivo por periodo con cifras, fuentes,
-  cadencias y limitaciones. La salida principal es un PDF con las gráficas
-  (`reporte/pdf.py`); `reporte/generar.py` conserva la versión Markdown.
+- **Fase 0 — Esqueleto.** Carpetas, `config.py`, `requirements.txt`,
+  `.gitignore`, `main.py` y stubs con `obtener()` vacío. *Verificable:*
+  `python main.py` corre sin error.
+- **Fase 1 — Fuentes** 1a FX → 1b Café → 1c Clima → 1d Noticias. Cada una corre
+  sola mostrando su DataFrame.
+- **Fase 2 — Unir.** `unir.py` junta en tabla semanal y guarda el snapshot;
+  `calidad.py` valida fechas, duplicados, nulos, valores y cobertura antes de
+  guardar (no se sobrescribe sin autorización). `historico.py` construye el
+  histórico desde 2023: producción mensual sin forward-fill, solo semanas
+  cerradas para el resto, idempotente.
+- **Bloque 3 — Indicadores.** `indicadores.py`: cambios, promedios móviles,
+  anomalías y comparaciones entre departamentos. Sin oportunidad/riesgo/juicio.
+- **Bloque 3.5 — Preparación visual.** `visualizacion.py`: etiquetas, categorías,
+  orden, colores e índice base 100. Capa neutral, sin criterio ni score.
+- **Visualizaciones para feedback.** `app.py` muestra panorama comercial y
+  detalle climático por departamento. No es el tablero final ni adelanta score.
+- **Simulador.** `proyeccion.py` desplaza el FNC observado proporcional a Coffee
+  C y USD/COP y aplica un ajuste aproximado por factor de rendimiento; la interfaz
+  edita costo por carga y estima margen bruto. No es pronóstico ni modela prima,
+  calidad, logística o causalidad.
+- **Fase 3 — Score.** Metodología del índice, con datos reales (pendiente).
+- **Fase 4 — Reporte.** Brief por periodo con cifras, fuentes, cadencias y
+  limitaciones. Salida principal: PDF con gráficas (`reporte/pdf.py`);
+  `reporte/generar.py` conserva la versión Markdown.
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
 - **Fase 6 — Automatización.** GitHub Actions semanal.
 - **Fase 7 — Banco Mundial + pulido para LinkedIn.**
 
 ## 8. Cómo ejecutar y verificar
 
-Siempre con el entorno virtual activo (`(.venv)` visible en la terminal):
+Con el entorno virtual activo (`(.venv)` visible):
 
 ```
-.venv\Scripts\Activate.ps1      # Windows PowerShell
-python -m fuentes.fx            # probar un módulo aislado
-python main.py                  # correr el orquestador
+.venv\Scripts\Activate.ps1               # Windows PowerShell
+python -m fuentes.fx                     # probar un módulo aislado
+python main.py                           # correr el orquestador
 python -m unittest discover -s tests -v  # pruebas sin internet
-python -m procesar.historico    # actualizar el histórico desde 2023
-python -m procesar.indicadores  # calcular tendencias y resumen reciente
-python -m procesar.visualizacion  # preparar series para gráficos
-streamlit run app.py           # abrir visualizaciones en localhost:8501
+python -m procesar.historico             # actualizar el histórico desde 2023
+python -m procesar.indicadores           # tendencias y resumen reciente
+python -m procesar.visualizacion         # preparar series para gráficos
+streamlit run app.py                     # tablero en localhost:8501
 ```
 
 ## 9. Disciplina de edición
 
-- Ediciones **quirúrgicas**: cambiar lo mínimo necesario para la tarea.
+- Ediciones **quirúrgicas**: lo mínimo necesario.
 - **No romper el contrato** de las fuentes (sección 4). Si hay que cambiar el
-  esquema, avisar y actualizar este CLAUDE.md y todos los módulos afectados.
+  esquema, avisar y actualizar este archivo y todos los módulos afectados.
 - No mezclar dos fases en un mismo cambio.
-- Si una fuente revela una limitación, documentarla en el módulo y mencionarla,
-  no esconderla.
-- Al cerrar un cambio validado, actualizar `CONTEXTO_IAS.md` solo si cambia el
-  estado, una decisión, una limitación o el próximo paso. Actualizar
-  `BRIEFING_CHAT.md` únicamente cuando cambie el panorama estratégico que un
-  chat sin acceso al repositorio necesita conocer.
+- Si una fuente revela una limitación, documentarla en el módulo, no esconderla.
+- **Documentación:** tras cada cambio validado, actualizar **solo**
+  `CONTEXTO_IAS.md` (si cambió estado, decisión, limitación o próximo paso).
+  `README.md`, `ACERCA_DE.md` y `BRIEFING_CHAT.md` se actualizan solo por
+  petición manual del usuario. Este `CLAUDE.md` se toca sin pedir permiso únicamente
+  ante un cambio crítico (arquitectura, contrato, convención).
 
 ## 10. Secretos y API keys
 
-- **Nunca** escribir keys en el código ni en `config.py`.
-- Las keys (Alpha Vantage en fases tardías; Anthropic si se usa para el
-  resumen) van en un archivo `.env` que **está en `.gitignore`** y se leen como
-  variables de entorno.
-- `.env`, `.venv/` y `__pycache__/` nunca se suben al repositorio.
+- **Nunca** keys en el código ni en `config.py`. Van en `.env` (en `.gitignore`),
+  leídas como variables de entorno (Alpha Vantage en fases tardías; Anthropic si
+  se usa para el resumen).
+- `.env`, `.venv/` y `__pycache__/` nunca se suben.
