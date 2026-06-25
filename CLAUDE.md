@@ -53,6 +53,7 @@ monitor_agro/
 ├── fuentes/             # un módulo por fuente, todos con obtener()
 │   ├── fx.py            # USD/COP
 │   ├── cafe.py          # precio del café
+│   ├── referencia_mercado_fnc.py # trío FNC/NY/TRM para calibración
 │   ├── clima.py         # clima en zonas cafeteras
 │   ├── noticias.py      # señales cualitativas (GDELT)
 │   └── contexto.py      # Banco Mundial (fase tardía)
@@ -62,6 +63,7 @@ monitor_agro/
 │   ├── indicadores.py   # tendencias y comparación departamental
 │   ├── visualizacion.py # dataset y metadatos para gráficos
 │   ├── proyeccion.py    # escenarios Coffee C, USD/COP, FNC, factor y margen
+│   ├── calibracion_fnc.py # persiste el ajuste implícito diario de la FNC
 │   ├── unir.py          # junta las fuentes en una tabla semanal
 │   └── score.py         # metodología del índice (pendiente)
 ├── reporte/
@@ -119,6 +121,10 @@ el comportamiento operativo.
   `yfinance` (Frankfurter/BCE no cubre COP). `geografia="COLOMBIA"`.
 - **Precio interno (`precio_interno.py`)** — precio de referencia FNC, scraping
   del HTML de estadísticas cafeteras (frágil). `geografia="COLOMBIA"`.
+- **Referencia de mercado FNC (`referencia_mercado_fnc.py`)** — extrae de una
+  misma publicación diaria el precio FNC, Coffee C y TRM para calibrar el
+  simulador sin mezclar proveedores ni horas de cierre. Se persiste aparte en
+  `datos/historico/calibracion_fnc.csv`.
 - **Producción (`produccion.py`)** — nacional registrada mensual, del Excel FNC,
   en miles de sacos de 60 kg, un punto por mes sin relleno. `geografia="COLOMBIA"`.
 - **Clima (`clima.py`)** — Open-Meteo, gratis/sin key, uso no comercial. Una
@@ -149,10 +155,13 @@ Avanzar **en orden**; no pasar de fase hasta que la anterior corra y se verifiqu
   orden, colores e índice base 100. Capa neutral, sin criterio ni score.
 - **Visualizaciones para feedback.** `app.py` muestra panorama comercial y
   detalle climático por departamento. No es el tablero final ni adelanta score.
-- **Simulador.** `proyeccion.py` desplaza el FNC observado proporcional a Coffee
-  C y USD/COP y aplica un ajuste aproximado por factor de rendimiento; la interfaz
-  edita costo por carga y estima margen bruto. No es pronóstico ni modela prima,
-  calidad, logística o causalidad.
+- **Simulador.** `proyeccion.py` estima el FNC desde Coffee C y USD/COP con el
+  coeficiente implícito del último trío coherente publicado por la FNC. Si esa
+  referencia falla, usa una calibración estadística reciente como respaldo. El
+  FNC observado sirve para calibrar y comparar, no como piso. Aplica un ajuste
+  aproximado por factor de rendimiento; la interfaz edita costo por carga y
+  estima margen bruto. No es pronóstico ni modela prima, calidad, logística o
+  causalidad.
 - **Fase 3 — Score.** Metodología del índice, con datos reales (pendiente).
 - **Fase 4 — Reporte.** Brief por periodo con cifras, fuentes, cadencias y
   limitaciones. Salida principal: PDF con gráficas (`reporte/pdf.py`);
