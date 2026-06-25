@@ -21,8 +21,9 @@ el punto operativo, `BRIEFING_CHAT.md` en decisiones de producto confirmadas.
 
 Kit de consulta y reporte sobre las **condiciones que afectan la agroexportación
 de café de Colombia**: precio internacional del café, USD/COP, precio interno
-FNC, producción nacional mensual, clima en departamentos cafeteros y señales de
-noticias. La interfaz consulta y exporta evidencia y genera un brief por periodo.
+FNC, producción y exportaciones nacionales mensuales, clima en departamentos
+cafeteros y señales de noticias. La interfaz consulta y exporta evidencia y
+genera un brief por periodo.
 Un índice futuro queda condicionado a conocimiento experto.
 
 **Pivote a Colombia:** nació comparando países LatAm (Colombia, Brasil, Perú,
@@ -53,6 +54,8 @@ monitor_agro/
 ├── fuentes/             # un módulo por fuente, todos con obtener()
 │   ├── fx.py            # USD/COP
 │   ├── cafe.py          # precio del café
+│   ├── produccion.py    # producción nacional mensual FNC
+│   ├── exportaciones.py # exportaciones nacionales mensuales FNC
 │   ├── referencia_mercado_fnc.py # trío FNC/NY/TRM para calibración
 │   ├── clima.py         # clima en zonas cafeteras
 │   ├── noticias.py      # señales cualitativas (GDELT)
@@ -79,7 +82,8 @@ monitor_agro/
 Cada módulo de `fuentes/` expone `def obtener() -> pandas.DataFrame`.
 
 **Contrato numérico** (`fx.py`, `cafe.py`, `clima.py`, `precio_interno.py`,
-`produccion.py`, `contexto.py`): DataFrame largo/tidy con estas columnas exactas:
+`produccion.py`, `exportaciones.py`, `contexto.py`): DataFrame largo/tidy con
+estas columnas exactas:
 
 | columna     | tipo  | descripción                                       |
 |-------------|-------|---------------------------------------------------|
@@ -127,6 +131,9 @@ el comportamiento operativo.
   `datos/historico/calibracion_fnc.csv`.
 - **Producción (`produccion.py`)** — nacional registrada mensual, del Excel FNC,
   en miles de sacos de 60 kg, un punto por mes sin relleno. `geografia="COLOMBIA"`.
+- **Exportaciones (`exportaciones.py`)** — volumen mensual exportado, del Excel
+  FNC, en miles de sacos de 60 kg de café verde equivalente, un punto por mes
+  sin relleno. `geografia="COLOMBIA"`.
 - **Clima (`clima.py`)** — Open-Meteo, gratis/sin key, uso no comercial. Una
   coordenada por departamento (`config.REGIONES_CAFE`); `geografia` = departamento.
 - **Noticias (`noticias.py`)** — GDELT DOC 2.0 (`gdeltdoc`), gratis/sin key,
@@ -147,14 +154,14 @@ Avanzar **en orden**; no pasar de fase hasta que la anterior corra y se verifiqu
 - **Fase 2 — Unir.** `unir.py` junta en tabla semanal y guarda el snapshot;
   `calidad.py` valida fechas, duplicados, nulos, valores y cobertura antes de
   guardar (no se sobrescribe sin autorización). `historico.py` construye el
-  histórico desde 2023: producción mensual sin forward-fill, solo semanas
-  cerradas para el resto, idempotente.
+  histórico desde 2023: producción y exportaciones mensuales sin forward-fill,
+  solo semanas cerradas para el resto, idempotente.
 - **Bloque 3 — Indicadores.** `indicadores.py`: cambios, promedios móviles,
   anomalías y comparaciones entre departamentos. Sin oportunidad/riesgo/juicio.
 - **Bloque 3.5 — Preparación visual.** `visualizacion.py`: etiquetas, categorías,
   orden, colores e índice base 100. Capa neutral, sin criterio ni score.
 - **Visualizaciones para feedback.** `app.py` muestra panorama comercial y
-  detalle climático por departamento. No es el tablero final ni adelanta score.
+  simulador. El clima permanece en el pipeline, pero no en la interfaz visible.
 - **Simulador.** `proyeccion.py` estima el FNC desde Coffee C y USD/COP con el
   coeficiente implícito del último trío coherente publicado por la FNC. Si esa
   referencia falla, usa una calibración estadística reciente como respaldo. El
