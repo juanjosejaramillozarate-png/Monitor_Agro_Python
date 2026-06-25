@@ -167,7 +167,7 @@ Avanzar **en orden**; no pasar de fase hasta que la anterior corra y se verifiqu
   limitaciones. Salida principal: PDF con gráficas (`reporte/pdf.py`);
   `reporte/generar.py` conserva la versión Markdown.
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
-- **Fase 6 — Automatización.** GitHub Actions semanal.
+- **Fase 6 — Automatización.** GitHub Actions cada 2 días.
 - **Fase 7 — Banco Mundial + pulido para LinkedIn.**
 
 ## 8. Cómo ejecutar y verificar
