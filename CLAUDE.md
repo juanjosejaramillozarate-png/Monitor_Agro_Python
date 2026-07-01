@@ -71,6 +71,7 @@ monitor_agro/
 │   └── score.py         # metodología del índice (pendiente)
 ├── reporte/
 │   ├── generar.py       # brief Markdown e informe Markdown del simulador
+│   ├── excel.py         # libro comercial filtrable con resumen y diccionario
 │   └── pdf.py           # brief del periodo en PDF (matplotlib + reportlab)
 ├── datos/               # historico/ indicadores/ visualizacion/ snapshots/
 ├── tests/               # pruebas unitarias sin internet
@@ -171,8 +172,10 @@ Avanzar **en orden**; no pasar de fase hasta que la anterior corra y se verifiqu
   causalidad.
 - **Fase 3 — Score.** Metodología del índice, con datos reales (pendiente).
 - **Fase 4 — Reporte.** Brief por periodo con cifras, fuentes, cadencias y
-  limitaciones. Salida principal: PDF con gráficas (`reporte/pdf.py`);
-  `reporte/generar.py` conserva la versión Markdown.
+  limitaciones. Salidas reutilizables: libro Excel con resumen, series
+  filtrables y diccionario (`reporte/excel.py`), y PDF de tres páginas con
+  gráficas (`reporte/pdf.py`); `reporte/generar.py` conserva la versión
+  Markdown y el informe del simulador.
 - **Fase 5 — Streamlit.** Tablero leyendo los snapshots.
 - **Fase 6 — Automatización.** GitHub Actions cada 2 días.
 - **Fase 7 — Banco Mundial + pulido para LinkedIn.**
